@@ -20,12 +20,11 @@ This will run the Flask server on port 5000. You can access the serve at `http:/
 ## Testing
 
 ```
-coverage run -m pytests
-coverage report -m
+make tests
 ```
 
 or 
 
 ```
-make tests
+make test-coverage
 ```
