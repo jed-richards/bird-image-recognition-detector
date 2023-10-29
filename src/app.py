@@ -7,10 +7,32 @@ from flask import (
     url_for,
     jsonify
 )
+from werkzeug.utils import secure_filename
+from pathlib import Path
 
 app = Flask(__name__)
 
-@app.route('/')
+IMAGE_DIR = 'src/static/img'
+IMAGE_PATH = Path(IMAGE_DIR)
+
+@app.route('/', methods=['GET'])
 def index():
-    return jsonify({'result': 1})
-    #return 'Results of GET'
+    return redirect(url_for('main'))
+
+@app.route('/main/', methods=['GET'])
+def main():
+    return render_template('index.html')
+
+@app.route('/predict/', methods=['POST'])
+def predict():
+    if request.method == 'POST':
+        image = request.files.get('image')
+        if image is None or image.filename == '':
+            return jsonify({'error': 'no file'})
+
+        filename = secure_filename(image.filename)
+        filepath = IMAGE_PATH / filename
+
+        #image.save(str(filepath))
+
+    return jsonify({'filepath': str(filepath)})

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>B.I.R.D.</title>
+    </head>
+
+    <body>
+        <form action="{{ url_for('predict') }}" method="POST" enctype="multipart/form-data">
+            <label for="image">Insert a bird image:</label>
+            <input type="file" name="image" id="image"/>
+            <button type="submit" name="submit">Predict Species</button>
+        </form>
+    </body>
+
+</html>
