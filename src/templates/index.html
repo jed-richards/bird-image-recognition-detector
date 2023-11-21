@@ -3,14 +3,36 @@
 
     <head>
         <title>B.I.R.D.</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
     </head>
 
     <body>
-        <form action="{{ url_for('predict') }}" method="POST" enctype="multipart/form-data">
-            <label for="image">Insert a bird image:</label>
-            <input type="file" name="image" id="image"/>
-            <button type="submit" name="submit">Predict Species</button>
-        </form>
+        <div id="title-div">
+            <h1 id="title">B.I.R.D.</h1>
+            <p id="subtitle">Bird Image Recognition Detector</p>
+            <p id="description">B.I.R.D. is a web application that uses machine learning to identify bird species from images.</p>
+        </div>
+
+        <div id="form-div">
+            <form action="{{ url_for('predict') }}" method="POST" enctype="multipart/form-data">
+                <label for="image">Insert a bird image:</label>
+                <input type="file" name="image" id="image"/>
+                <button type="submit" name="submit" id="predict-button">Predict Species</button>
+            </form>
+        </div>
+
+        {% if prediction %}
+        <!-- show image and percentage -->
+        <div id="prediction-div">
+            <p id="species">The predicted species is: {{ prediction.species }}</p>
+            <p id="percentage">The percent accuracy is: {{ prediction.accuracy }}</p>
+            <div id="image-div">
+                <img src="/{{prediction.user_image}}" alt="Your Bird Image" id="bird-image">
+                <img src="/{{prediction.predicted_image}}" alt="Predicted Bird Image" id="bird-image">
+            </div>
+        </div>
+        {% endif %}
+
     </body>
 
 </html>

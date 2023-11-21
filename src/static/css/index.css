@@ -1,0 +1,27 @@
+div#prediction-div {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f8f8f8;
+}
+
+p#species {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+p#percentage {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+div#image-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    space-between: 20px;
+}
