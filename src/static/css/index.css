@@ -23,6 +23,16 @@ div#image-div {
     display: flex;
     justify-content: center;
     align-items: center;
-    /*space-between: 20px;*/
-    gap: 20px;
+    gap: 50px;
+}
+div#user-image-div, div#predicted-image-div {
+    padding: 10px;
+    border-radius: 4px;
+    background-color: dimgrey;
+    text-align: center;
+    color: white;
+}
+img {
+    border: 5px solid black;
+    border-radius: 5px;
 }

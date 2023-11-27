@@ -27,8 +27,14 @@
             <p id="species">The predicted species is: {{ prediction.species }}</p>
             <p id="percentage">The percent accuracy is: {{ prediction.accuracy }}</p>
             <div id="image-div">
-                <img src="/{{prediction.user_image}}" alt="Your Bird Image" id="bird-image">
-                <img src="/{{prediction.predicted_image}}" alt="Predicted Bird Image" id="bird-image">
+                <div id="user-image-div">
+                    <p id="user-image-label">Your Image</p>
+                    <img src="/{{prediction.user_image}}" alt="Your Bird Image" id="user-bird-image">
+                </div>
+                <div id="predicted-image-div">
+                    <p id="predicted-image-label">Predicted Image</p>
+                    <img src="/{{prediction.predicted_image}}" alt="Predicted Bird Image" id="predicted-bird-image">
+                </div>
             </div>
         </div>
         {% endif %}
