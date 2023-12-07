@@ -43,6 +43,15 @@ def predict():
         "predicted_image": str(filepath)[4:], # this will need to be changed to the predicted image path
     }
 
+    # Used for image in powerpoint
+    #predicted_image_path = filepath.with_stem(filepath.stem + "-PREDICTED")
+    #prediction = {
+    #    "species": filepath.stem,
+    #    "accuracy": 94.2,
+    #    "user_image": str(filepath)[4:], # remove 'src/'
+    #    "predicted_image": str(predicted_image_path)[4:], # this will need to be changed to the predicted image path
+    #}
+
     return render_template('index.html', prediction=prediction)
 
     #return jsonify({'filepath': str(filepath)})
