@@ -10,6 +10,9 @@ python3 -m venv env
 pip install -r requirements.txt
 ```
 
+### Bird Image Dataset
+Download at [kaggle](https://www.kaggle.com/datasets/gpiosenka/100-bird-species).
+
 ## Running app 
 
 ``` 
