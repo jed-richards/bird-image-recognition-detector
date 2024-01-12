@@ -7,6 +7,7 @@ B.I.R.D. or Bird Image Recognition Detector is a machine learning model to class
 git clone https://github.com/jed-richards/bird-image-recognition-detector
 cd bird-image-recognition-detector
 python3 -m venv env
+source env/bin/activate
 pip install -r requirements.txt
 ```
 
