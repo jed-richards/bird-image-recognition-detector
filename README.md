@@ -15,6 +15,9 @@ conda activate bird
 
 ### Bird Image Dataset
 - Download [Kaggle - Birds 525 Species Dataset](https://www.kaggle.com/datasets/gpiosenka/100-bird-species).
+```
+unzip PATH/TO/archive.zip -d PATH/TO/bird-image-recognition-detector/data
+```
 
 ## Running app 
 
