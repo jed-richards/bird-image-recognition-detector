@@ -3,16 +3,18 @@ B.I.R.D. or Bird Image Recognition Detector is a machine learning model to class
 
 ## Installation
 
+### Dependencies
+- Install [conda](https://docs.conda.io/en/latest/)
+
 ```
 git clone https://github.com/jed-richards/bird-image-recognition-detector
 cd bird-image-recognition-detector
-python3 -m venv env
-source env/bin/activate
-pip install -r requirements.txt
+conda env create -f environment.yml
+conda activate bird
 ```
 
 ### Bird Image Dataset
-Download at [kaggle](https://www.kaggle.com/datasets/gpiosenka/100-bird-species).
+- Download [Kaggle - Birds 525 Species Dataset](https://www.kaggle.com/datasets/gpiosenka/100-bird-species).
 
 ## Running app 
 
