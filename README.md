@@ -19,9 +19,9 @@ conda activate bird
 unzip PATH/TO/archive.zip -d PATH/TO/bird-image-recognition-detector/data
 ```
 
-## Running app 
+## Running app
 
-``` 
+```
 make run-app
 ```
 This will run the Flask server on port 5000. You can access the serve at `http://localhost:5000/`.
@@ -32,7 +32,7 @@ This will run the Flask server on port 5000. You can access the serve at `http:/
 make tests
 ```
 
-or 
+or
 
 ```
 make test-coverage
