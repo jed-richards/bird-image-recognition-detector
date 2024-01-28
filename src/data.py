@@ -1,5 +1,8 @@
 import os
+import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
+from PIL import Image
 
 data = {
     "dataset": [],   # train, test, or valid
@@ -26,8 +29,35 @@ for root, dirs, files in os.walk(data_root):
     data["label"].extend(labels_list)
 
 df = pd.DataFrame(data=data)
-df.to_csv("bird_df.csv", index=False)
-print(df)
+df = df.sort_values(by=['dataset', 'label'])
 
-#df = pd.read_csv("bird_df.csv")
-#print(df)
+# Extract unique species and assign class IDs
+unique_species = df['label'].unique()
+class_ids = pd.factorize(unique_species)[0]
+
+# Create a dictionary mapping species to class IDs
+species_to_classid = dict(zip(unique_species, class_ids))
+
+# Add a new 'class_id' column to the DataFrame
+df['class_id'] = df['label'].map(species_to_classid)
+
+df.to_csv("bird_df.csv", index=False)
+#df.to_csv("bird_df.csv")
+
+#test_df = df[df['dataset'] == 'test']
+#train_df = df[df['dataset'] == 'train']
+#valid_df = df[df['dataset'] == 'valid']
+#
+#plt.figure(figsize=(15,12))
+#for i, row in valid_df.sample(n=16).reset_index().iterrows():
+#    plt.subplot(4,4,i+1)
+#    image_path = row['filepath']
+#    image = Image.open(image_path)
+#    print(np.array(image).shape)
+#    plt.imshow(image)
+#    plt.title(row["label"])
+#    plt.axis('off')
+#plt.show()
+#
+#print(len(df))
+#print(df.shape[0])
