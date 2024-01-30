@@ -18,12 +18,34 @@ valid_df = df[df['dataset'] == 'valid']
 
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomRotation(degrees=(-5,5)),
     transforms.ToTensor(),
 ])
 
 class CNN(nn.Module):
     def __init__(self, num_classes):
         super().__init__()
+
+        ## Convolutional Layers
+        #self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1)
+        #self.relu1 = nn.ReLU()
+        #self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        #self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1)
+        #self.relu2 = nn.ReLU()
+        #self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        #self.conv3 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
+        #self.relu3 = nn.ReLU()
+        #self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        ## Fully connected/linear layers
+        #self.fc1 = nn.Linear(64 * 28 * 28, 1024)
+        #self.relu4 = nn.ReLU()
+        #self.fc2 = nn.Linear(1024, num_classes)
+
+        # --------------------------------
 
         # Convolutional Layers
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1)
@@ -34,15 +56,19 @@ class CNN(nn.Module):
         self.relu2 = nn.ReLU()
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv3 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
-        self.relu3 = nn.ReLU()
-        self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
+        #self.conv3 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
+        #self.relu3 = nn.ReLU()
+        #self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
 
         # Fully connected layers
         #self.fc1 = nn.Linear(64 * 56 * 56, 512)
-        self.fc1 = nn.Linear(64 * 28 * 28, 512)
+        #self.fc1 = nn.Linear(64 * 28 * 28, 512)
+        #self.fc1 = nn.Linear(64 * 28 * 28, 1024)
+        #self.dropout1 = nn.Dropout()
+        self.fc1 = nn.Linear(32 * 56 * 56, 1024)
         self.relu4 = nn.ReLU()
-        self.fc2 = nn.Linear(512, num_classes)
+        #self.fc2 = nn.Linear(512, num_classes)
+        self.fc2 = nn.Linear(1024, num_classes)
 
     def forward(self, x):
         #print(f'1) size: {x.shape}')
@@ -50,16 +76,17 @@ class CNN(nn.Module):
         #print(f'2) size: {x.shape}')
         x = self.pool2(self.relu2(self.conv2(x)))
         #print(f'3) size: {x.shape}')
-        x = self.pool3(self.relu3(self.conv3(x)))
+        #x = self.pool3(self.relu3(self.conv3(x)))
         #print(f'4) size: {x.shape}')
 
         x = torch.flatten(x, 1)
         #print("SIZE: ", x.shape)
 
         #x = x.view(-1, 64 * 28 * 28)
-        #x = self.fc1(x)
+        x = self.fc1(x)
         #print(f'5) size: {x.shape}')
         #x = x.view(64*56*56, -1)
+        #x = self.dropout1(x)
         x = self.relu4(self.fc1(x))
         #print(f'6) size: {x.shape}')
         x = self.fc2(x)
@@ -91,15 +118,28 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 def train(model, num_epochs, train_dl, valid_dl):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    #device = "cpu"
     model = model.to(device)
     print(f"device: {device}")
     loss_hist_train = [0] * num_epochs
     accuracy_hist_train = [0] * num_epochs
     loss_hist_valid = [0] * num_epochs
     accuracy_hist_valid = [0] * num_epochs
+
+
     for epoch in range(num_epochs):
+        ti = default_timer()
+        print(f"epoch: {epoch}")
         model.train()
+
+        i = 0
+
         for x_batch, y_batch in train_dl:
+
+            if i%100 == 0:
+                print(f"batch: {i}")
+            i += 1
+
             x_batch = x_batch.to(device)
             y_batch = y_batch.to(device)
             #print(f'batch_size: {len(x_batch)}')
@@ -115,6 +155,12 @@ def train(model, num_epochs, train_dl, valid_dl):
             #print(f'y_batch:\n {y_batch}')
             #print(f'shape pred:\n {pred.shape}')
             #print(f'shape y_batch:\n {y_batch.shape}')
+
+            #print(f'size of pred: {pred.shape}')
+            #print(f'pred[0]: {pred[0]}')
+            #print(f'size of y_batch: {y_batch.shape}')
+            #print(f'y_batch[0]: {y_batch[0]}')
+
             loss = loss_fn(pred, y_batch)
             loss.backward()
             optimizer.step()
@@ -126,11 +172,16 @@ def train(model, num_epochs, train_dl, valid_dl):
         loss_hist_train[epoch] /= len(train_dl.dataset)
         accuracy_hist_train[epoch] /= len(train_dl.dataset)
 
+        tf = default_timer()
+        print(f'train time: {tf-ti}')
+
+        tii = default_timer()
+
         model.eval()
         with torch.no_grad():
             for x_batch, y_batch in valid_dl:
-                #x_batch = x_batch.to(device)
-                #y_batch = y_batch.to(device)
+                x_batch = x_batch.to(device)
+                y_batch = y_batch.to(device)
                 pred = model(x_batch)
                 loss = loss_fn(pred, y_batch)
                 loss_hist_valid[epoch] += loss.item()*y_batch.size(0)
@@ -141,9 +192,15 @@ def train(model, num_epochs, train_dl, valid_dl):
         accuracy_hist_valid[epoch] /= len(valid_dl.dataset)
 
         print(f'Epoch {epoch+1} accuracy: {accuracy_hist_train[epoch]:.4f} val_accuracy: {accuracy_hist_valid[epoch]:.4f}')
+
+        tf = default_timer()
+        print(f'valid time: {tf-tii}')
+
+        print(f'total time: {tf-ti}')
+
     return loss_hist_train, loss_hist_valid, accuracy_hist_train, accuracy_hist_valid
 
-torch.manual_seed(1)
+#torch.manual_seed(1)
 num_epochs = 20
 
 t1 = default_timer()
@@ -172,7 +229,7 @@ ax.legend(fontsize=15)
 ax.set_xlabel('Epoch', size=15)
 ax.set_ylabel('Accuracy', size=15)
 
-plt.savefig('train01.png')
+plt.savefig('images/train04.png')
 plt.show()
 
 
@@ -207,7 +264,7 @@ plt.show()
 if not os.path.exists('models'):
     os.mkdir('models')
 
-path = 'models/model01.ph'
+path = 'models/model04.ph'
 torch.save(model, path)
 
 
