@@ -1,8 +1,5 @@
 import os
-import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
-from PIL import Image
 
 data = {
     "dataset": [],   # train, test, or valid
@@ -41,9 +38,9 @@ species_to_classid = dict(zip(unique_species, class_ids))
 # Add a new 'class_id' column to the DataFrame
 df['class_id'] = df['label'].map(species_to_classid)
 
-df.to_csv("bird_df.csv", index=False)
-#df.to_csv("bird_df.csv")
+df.to_csv("data/bird_df.csv", index=False)
 
+# PLOT SOME IMAGES TO SEE HOW THEY LOOK
 #test_df = df[df['dataset'] == 'test']
 #train_df = df[df['dataset'] == 'train']
 #valid_df = df[df['dataset'] == 'valid']

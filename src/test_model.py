@@ -15,6 +15,26 @@ class CNN(nn.Module):
         super().__init__()
 
         ## Convolutional Layers
+        #self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1)
+        #self.relu1 = nn.ReLU()
+        #self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        #self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1)
+        #self.relu2 = nn.ReLU()
+        #self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        #self.conv3 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
+        #self.relu3 = nn.ReLU()
+        #self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        ## Fully connected/linear layers
+        #self.fc1 = nn.Linear(64 * 28 * 28, 1024)
+        #self.relu4 = nn.ReLU()
+        #self.fc2 = nn.Linear(1024, num_classes)
+
+        # --------------------------------
+
+        # Convolutional Layers
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1)
         self.relu1 = nn.ReLU()
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
@@ -23,25 +43,41 @@ class CNN(nn.Module):
         self.relu2 = nn.ReLU()
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv3 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
-        self.relu3 = nn.ReLU()
-        self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
+        #self.conv3 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
+        #self.relu3 = nn.ReLU()
+        #self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # Fully connected/linear layers
-        self.fc1 = nn.Linear(64 * 28 * 28, 1024)
+        # Fully connected layers
+        #self.fc1 = nn.Linear(64 * 56 * 56, 512)
+        #self.fc1 = nn.Linear(64 * 28 * 28, 512)
+        #self.fc1 = nn.Linear(64 * 28 * 28, 1024)
+        #self.dropout1 = nn.Dropout()
+        self.fc1 = nn.Linear(32 * 56 * 56, 1024)
         self.relu4 = nn.ReLU()
+        #self.fc2 = nn.Linear(512, num_classes)
         self.fc2 = nn.Linear(1024, num_classes)
 
     def forward(self, x):
-        # Conv Layers
+        #print(f'1) size: {x.shape}')
         x = self.pool1(self.relu1(self.conv1(x)))
+        #print(f'2) size: {x.shape}')
         x = self.pool2(self.relu2(self.conv2(x)))
-        x = self.pool3(self.relu3(self.conv3(x)))
+        #print(f'3) size: {x.shape}')
+        #x = self.pool3(self.relu3(self.conv3(x)))
+        #print(f'4) size: {x.shape}')
 
-        # Fully connected layers
         x = torch.flatten(x, 1)
+        #print("SIZE: ", x.shape)
+
+        #x = x.view(-1, 64 * 28 * 28)
+        x = self.fc1(x)
+        #print(f'5) size: {x.shape}')
+        #x = x.view(64*56*56, -1)
+        #x = self.dropout1(x)
         x = self.relu4(self.fc1(x))
+        #print(f'6) size: {x.shape}')
         x = self.fc2(x)
+        #print(f'7) size: {x.shape}')
 
         return x
 
@@ -66,7 +102,25 @@ def train(model, num_epochs, train_dl, valid_dl):
 
             x_batch = x_batch.to(device)
             y_batch = y_batch.to(device)
+            #print(f'batch_size: {len(x_batch)}')
+            #print(f'batch_size: {len(y_batch)}')
+            ##x_batch = x_batch.to(device)
+            ##y_batch = y_batch.to(device)
+            #print(f'typeof(x_batch): {type(x_batch)}')
             pred = model(x_batch)
+            #print(f'pred size: {len(pred)}')
+            #print(f'typeof(pred): {type(pred)}')
+            #print(f'typeof(y_batch): {type(y_batch)}')
+            #print(f'pred:\n {pred}')
+            #print(f'y_batch:\n {y_batch}')
+            #print(f'shape pred:\n {pred.shape}')
+            #print(f'shape y_batch:\n {y_batch.shape}')
+
+            #print(f'size of pred: {pred.shape}')
+            #print(f'pred[0]: {pred[0]}')
+            #print(f'size of y_batch: {y_batch.shape}')
+            #print(f'y_batch[0]: {y_batch[0]}')
+
             loss = loss_fn(pred, y_batch)
             loss.backward()
             optimizer.step()
@@ -129,66 +183,65 @@ def plot_learning_curve(train_history):
 
 ############################### Train Model ###################################
 
-if __name__ == "__main__":
-    # Read and load dataset
-    df = pd.read_csv("data/bird_df.csv")
-    test_df = df[df['dataset'] == 'test']
-    train_df = df[df['dataset'] == 'train']
-    valid_df = df[df['dataset'] == 'valid']
+# Read and load dataset
+df = pd.read_csv("data/bird_df.csv")
+test_df = df[df['dataset'] == 'test']
+train_df = df[df['dataset'] == 'train']
+valid_df = df[df['dataset'] == 'valid']
 
-    # Transform for images
-    transform = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomRotation(degrees=(-5,5)),
-        transforms.ToTensor(),
-    ])
+# Transform for images
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomRotation(degrees=(-5,5)),
+    transforms.ToTensor(),
+])
 
-    # Create datasets and dataloaders
-    train_dataset = ImageDataset(train_df, transform=transform)
-    train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+# Create datasets and dataloaders
+train_dataset = ImageDataset(train_df, transform=transform)
+train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
-    test_dataset = ImageDataset(test_df, transform=transform)
-    test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+test_dataset = ImageDataset(test_df, transform=transform)
+test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
-    valid_dataset = ImageDataset(valid_df, transform=transform)
-    valid_dataloader = DataLoader(valid_dataset, batch_size=32, shuffle=False)
+valid_dataset = ImageDataset(valid_df, transform=transform)
+valid_dataloader = DataLoader(valid_dataset, batch_size=32, shuffle=False)
 
-    # Number of bird labels
-    num_classes = 525
+# Number of bird labels
+num_classes = 525
 
-    # Instantiate the CNN model
-    model = CNN(num_classes)
+# Instantiate the CNN model
+model = CNN(num_classes)
 
-    # Print the model architecture
-    print(model)
+# Print the model architecture
+print(model)
 
-    # Loss and Optimzer
-    loss_fn = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+# Loss and Optimzer
+loss_fn = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    #torch.manual_seed(1)
-    num_epochs = 20
+#torch.manual_seed(1)
+num_epochs = 20
 
-    # Time training
-    t1 = default_timer()
-    hist = train(model, num_epochs, train_dataloader, valid_dataloader)
-    t2 = default_timer()
+# Time training
+t1 = default_timer()
+hist = train(model, num_epochs, train_dataloader, valid_dataloader)
+t2 = default_timer()
 
-    print("-"*20)
-    print("")
-    print(f"TIME: {t2-t1}")
-    print("")
-    print("-"*20)
+print("-"*20)
+print("")
+print(f"TIME: {t2-t1}")
+print("")
+print("-"*20)
 
-    # Plot training data
-    plot_learning_curve(hist)
+# Plot training data
+plot_learning_curve(hist)
 
-    if not os.path.exists('models'):
-        os.mkdir('models')
+if not os.path.exists('models'):
+    os.mkdir('models')
 
-    # Save model
-    #path = 'models/model04.ph'
-    #torch.save(model, path)
+# Save model
+#path = 'models/model04.ph'
+#torch.save(model, path)
 
 
