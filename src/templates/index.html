@@ -35,6 +35,7 @@
                 <div id="predicted-image-div">
                     <p id="predicted-image-label">Predicted Image</p>
                     <!--<img src="/{{prediction.predicted_image}}" alt="Predicted Bird Image" id="predicted-bird-image">-->
+                    <!--<img src="{{ url_for('serve_image', predicted_image_path=prediction['predicted_image']) }}" alt="Predicted Image">-->
                     <img src="{{ url_for('serve_image', predicted_image_path=prediction['predicted_image']) }}" alt="Predicted Image">
                 </div>
             </div>
