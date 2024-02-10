@@ -26,6 +26,7 @@
         <div id="prediction-div">
             <p id="species">The predicted species is: {{ prediction.species }}</p>
             <p id="percentage">The percent accuracy is: {{ prediction.accuracy }}</p>
+            <p id="prediction_id">The predicted ID is: {{ prediction.predicted_id }}</p>
             <div id="image-div">
                 <div id="user-image-div">
                     <p id="user-image-label">Your Image</p>
@@ -33,7 +34,8 @@
                 </div>
                 <div id="predicted-image-div">
                     <p id="predicted-image-label">Predicted Image</p>
-                    <img src="/{{prediction.predicted_image}}" alt="Predicted Bird Image" id="predicted-bird-image">
+                    <!--<img src="/{{prediction.predicted_image}}" alt="Predicted Bird Image" id="predicted-bird-image">-->
+                    <img src="{{ url_for('serve_image', predicted_image_path=prediction['predicted_image']) }}" alt="Predicted Image">
                 </div>
             </div>
         </div>

@@ -6,10 +6,24 @@ from torchvision import transforms
 from model import CNN  # my CNN class
 from dataset import ImageDataset  # my ImageDataset class
 
+# Function to load the model
+def load_model(model_path):
+    model = torch.load(model_path)
+    model.eval()
+    return model
+
 # Load model
-MODEL_PATH = "models/model01.ph"
-model = torch.load(MODEL_PATH)
-model.eval()
+#MODEL_PATH = 'src/models/model03.ph'
+#model = load_model(MODEL_PATH)
+
+#torch.save(model.state_dict(), 'src/models/model03_sd.ph')
+
+#exit()
+
+MODEL_PATH = 'src/models/model03_sd.ph'
+model = CNN(num_classes=525)
+model.load_state_dict(torch.load(MODEL_PATH))
+
 
 # Print model architecture
 print(model)
@@ -21,8 +35,6 @@ test_df = df[df['dataset'] == 'test']
 # Transform for images
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomRotation(degrees=(-5,5)),
     transforms.ToTensor(),
 ])
 

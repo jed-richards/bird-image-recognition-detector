@@ -9,12 +9,19 @@ div#prediction-div {
     background-color: #f8f8f8;
 }
 
+/*
 p#species {
     font-size: 20px;
     font-weight: bold;
 }
 
 p#percentage {
+    font-size: 20px;
+    font-weight: bold;
+}
+*/
+
+p {
     font-size: 20px;
     font-weight: bold;
 }

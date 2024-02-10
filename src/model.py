@@ -8,8 +8,6 @@ import matplotlib.pyplot as plt
 import os
 from timeit import default_timer
 from dataset import ImageDataset  # my ImageDataset class
-
-
 class CNN(nn.Module):
     def __init__(self, num_classes):
         super().__init__()
@@ -127,6 +125,25 @@ def plot_learning_curve(train_history):
     #plt.savefig('images/train04.png')
     plt.show()
 
+def test_model(dataloader, model, loss_fn):
+    # Set the model to evaluation mode - important for batch normalization and dropout layers
+    model.eval()
+    size = len(dataloader.dataset)
+    num_batches = len(dataloader)
+    test_loss, correct = 0, 0
+
+    # Evaluating the model with torch.no_grad() ensures that no gradients are computed during test mode
+    # also serves to reduce unnecessary gradient computations and memory usage for tensors with requires_grad=True
+    with torch.no_grad():
+        for X, y in dataloader:
+            pred = model(X)
+            test_loss += loss_fn(pred, y).item()
+            correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+
+    test_loss /= num_batches
+    correct /= size
+    print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+
 ############################### Train Model ###################################
 
 if __name__ == "__main__":
@@ -144,15 +161,20 @@ if __name__ == "__main__":
         transforms.ToTensor(),
     ])
 
+    test_transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+    ])
+
     # Create datasets and dataloaders
     train_dataset = ImageDataset(train_df, transform=transform)
     train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
-    test_dataset = ImageDataset(test_df, transform=transform)
-    test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
-
     valid_dataset = ImageDataset(valid_df, transform=transform)
     valid_dataloader = DataLoader(valid_dataset, batch_size=32, shuffle=False)
+
+    test_dataset = ImageDataset(test_df, transform=test_transform)
+    test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
     # Number of bird labels
     num_classes = 525
@@ -191,4 +213,8 @@ if __name__ == "__main__":
     #path = 'models/model04.ph'
     #torch.save(model, path)
 
+    # Save only state_dict
+    #torch.save(model.state_dict(), 'save/to/path/model.pth')
 
+    # Test the model
+    #test_model(test_dataloader, model, loss_fn)
