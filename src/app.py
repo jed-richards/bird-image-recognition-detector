@@ -42,7 +42,7 @@ def load_model(model_path):
     return model
 
 # Load model
-MODEL_PATH = 'src/models/model01_sd.ph'
+MODEL_PATH = 'src/models/model03_sd.ph'
 model = load_model(MODEL_PATH)
 
 # Transform input into the form our model expects
