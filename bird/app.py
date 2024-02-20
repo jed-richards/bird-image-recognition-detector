@@ -24,11 +24,12 @@ from typing import Dict, List
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 #from model import CNN  # my CNN class
-from models.efficient_net import EfficientNet
+#from models.efficient_net import EfficientNet
+from models.pretrained_efficient_net import build_pretrained_efficient_net_model
 
 app = Flask(__name__)
 
-IMAGE_DIR = 'src/static/images'
+IMAGE_DIR = 'bird/static/images'
 IMAGE_PATH = Path(IMAGE_DIR)
 
 if not os.path.exists(IMAGE_PATH):
@@ -37,14 +38,15 @@ if not os.path.exists(IMAGE_PATH):
 # Function to load the model
 def load_model(model_path):
     #model = CNN(num_classes=525)
-    model = EfficientNet(version="b0", num_classes=525)
+    #model = EfficientNet(version="b0", num_classes=525)
+    model = build_pretrained_efficient_net_model()
     model.load_state_dict(torch.load(model_path))
     model.eval()
     return model
 
 # Load model
 #MODEL_PATH = 'src/models/model03_sd.ph'
-MODEL_PATH = 'src/models/efficient_net01.ph'
+MODEL_PATH = 'models/saved_models/pretrained_efficient_net01.ph'
 model = load_model(MODEL_PATH)
 
 # Transform input into the form our model expects
@@ -125,13 +127,14 @@ def predict():
         "species": bird_label,
         "predicted_id": prediction_id,
         "accuracy": confidence,
-        "user_image": str(filepath)[4:], # remove 'src/'
+        "user_image": str(filepath)[5:], # remove 'bird/'
         "predicted_image": bird_img_path,
     }
 
     print(jsonify({'filepath': str(filepath)}))
-    return jsonify(prediction)
-    #return render_template('index.html', prediction=prediction)
+    print(jsonify({'filepath[5:]': str(filepath)[5:]}))
+    #return jsonify(prediction)
+    return render_template('index.html', prediction=prediction)
 
 @app.route('/image/<path:predicted_image_path>')
 def serve_image(predicted_image_path):

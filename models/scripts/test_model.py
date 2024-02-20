@@ -3,14 +3,17 @@
 import torch
 import torch.nn as nn
 from models.efficient_net import EfficientNet
+from models.pretrained_efficient_net import build_pretrained_efficient_net_model
 from utils.model_utils import load_model
 from utils.data_utils import (
     get_train_test_valid_dataloaders, load_train_test_valid_df
 )
 from utils.test_utils import test_model
 
-MODEL_PATH = 'models/saved_models/efficient_net01.ph'
-model = EfficientNet(version="b0", num_classes=525)
+#MODEL_PATH = 'models/saved_models/efficient_net01.ph'
+MODEL_PATH = 'models/saved_models/pretrained_efficient_net01.ph'
+#model = EfficientNet(version="b0", num_classes=525)
+model = build_pretrained_efficient_net_model()
 model = load_model(model, MODEL_PATH)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
