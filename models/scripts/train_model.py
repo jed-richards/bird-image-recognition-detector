@@ -3,10 +3,6 @@ import torch.nn as nn
 from timeit import default_timer
 import os
 
-import sys
-print(sys.path)
-print(os.getcwd())
-
 from utils.model_utils import save_model
 from utils.train_utils import train, plot_learning_curve
 from utils.test_utils import test_model
@@ -16,9 +12,12 @@ from utils.data_utils import (
 
 from models.efficient_net import EfficientNet
 from models.model1 import CNN
+from models.pretrained_efficient_net import build_pretrained_efficient_net_model
+
+# model_types = ["efficient_net", "pretrained_efficient_net", "CNN"]
 
 model_config = {
-    "model_type" : "efficient_net",  # ["efficient_net", ...]
+    "model_type" : "pretrained_efficient_net",  # ["efficient_net", ...]
     "num_classes": 525,    # number of bird classes
     "lr" : 0.001,          # learning rate
 }
@@ -39,6 +38,7 @@ if __name__ == "__main__":
     # Use GPU if available otherwise CPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Device: {device}")
+    print(f"model_type: {model_config['model_type']}")
 
     # Create model and send to device
     if model_config["model_type"] == "efficient_net":
@@ -46,6 +46,9 @@ if __name__ == "__main__":
             version="b0",
             num_classes=model_config["num_classes"],
         ).to(device)
+    elif model_config["model_type"] == "pretrained_efficient_net":
+        model = build_pretrained_efficient_net_model()
+        model.to(device)
     else:
         model = CNN(model_config["num_classes"]).to(device)
 
@@ -76,7 +79,7 @@ if __name__ == "__main__":
     plot_learning_curve(
         hist,
         save_image=True,
-        filename="models/training_images/efficient_net01.jpg"
+        filename="models/training_images/pretrained_efficient_net01.jpg"
     )
 
     # Make sure directory exists
@@ -84,7 +87,8 @@ if __name__ == "__main__":
         os.mkdir('models/saved_models')
 
     # Save model
-    path = 'models/saved_models/efficient_net01.ph'
+    #path = 'models/saved_models/efficient_net01.ph'
+    path = 'models/saved_models/pretrained_efficient_net01.ph'
     save_model(model, path)
 
     # Test the model
