@@ -1,7 +1,9 @@
-import torch
-import numpy as np
-import matplotlib.pyplot as plt
 from timeit import default_timer
+
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+
 
 def save_checkpoint(model, optimizer, filename):
     """
@@ -26,8 +28,8 @@ def save_checkpoint(model, optimizer, filename):
         save_checkpoint(model, optimizer, checkpoint_filename)
     """
     checkpoint = {
-        'model_state_dict': model.state_dict(),
-        'optimizer_state_dict': optimizer.state_dict()
+        "model_state_dict": model.state_dict(),
+        "optimizer_state_dict": optimizer.state_dict(),
     }
     torch.save(checkpoint, filename)
 
@@ -61,10 +63,9 @@ def load_checkpoint(model, optimizer, filename):
     model, optimizer = load_checkpoint(model, optimizer, checkpoint_filename)
     """
     checkpoint = torch.load(filename)
-    model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    model.load_state_dict(checkpoint["model_state_dict"])
+    optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
     return model, optimizer
-
 
 
 # TODO: clean up train func
@@ -83,7 +84,7 @@ def train(model, loss_fn, optimizer, num_epochs, train_dl, valid_dl):
         model.train()
 
         for i, (x_batch, y_batch) in enumerate(train_dl):
-            if i%100 == 0:
+            if i % 100 == 0:
                 print(f"batch: {i}")
 
             x_batch = x_batch.to(device)
@@ -93,7 +94,7 @@ def train(model, loss_fn, optimizer, num_epochs, train_dl, valid_dl):
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
-            loss_hist_train[epoch] += loss.item()*y_batch.size(0)
+            loss_hist_train[epoch] += loss.item() * y_batch.size(0)
             is_correct = (torch.argmax(pred, dim=1) == y_batch).float()
             accuracy_hist_train[epoch] += is_correct.sum().cpu()
 
@@ -101,7 +102,7 @@ def train(model, loss_fn, optimizer, num_epochs, train_dl, valid_dl):
         accuracy_hist_train[epoch] /= len(train_dl.dataset)
 
         tf = default_timer()
-        print(f'train time: {tf-ti}')
+        print(f"train time: {tf-ti}")
 
         tii = default_timer()
 
@@ -112,21 +113,28 @@ def train(model, loss_fn, optimizer, num_epochs, train_dl, valid_dl):
                 y_batch = y_batch.to(device)
                 pred = model(x_batch)
                 loss = loss_fn(pred, y_batch)
-                loss_hist_valid[epoch] += loss.item()*y_batch.size(0)
+                loss_hist_valid[epoch] += loss.item() * y_batch.size(0)
                 is_correct = (torch.argmax(pred, dim=1) == y_batch).float()
                 accuracy_hist_valid[epoch] += is_correct.sum().cpu()
 
         loss_hist_valid[epoch] /= len(valid_dl.dataset)
         accuracy_hist_valid[epoch] /= len(valid_dl.dataset)
 
-        print(f'Epoch {epoch+1} accuracy: {accuracy_hist_train[epoch]:.4f} val_accuracy: {accuracy_hist_valid[epoch]:.4f}')
+        print(
+            f"Epoch {epoch+1} accuracy: {accuracy_hist_train[epoch]:.4f} val_accuracy: {accuracy_hist_valid[epoch]:.4f}"
+        )
 
         tf = default_timer()
-        print(f'valid time: {tf-tii}')
+        print(f"valid time: {tf-tii}")
 
-        print(f'total time: {tf-ti}')
+        print(f"total time: {tf-ti}")
 
-    return model, (loss_hist_train, loss_hist_valid, accuracy_hist_train, accuracy_hist_valid)
+    return model, (
+        loss_hist_train,
+        loss_hist_valid,
+        accuracy_hist_train,
+        accuracy_hist_valid,
+    )
 
 
 def plot_learning_curve(train_history, save_image=False, filename=None):
@@ -134,20 +142,19 @@ def plot_learning_curve(train_history, save_image=False, filename=None):
     fig = plt.figure(figsize=(12, 4))
 
     ax = fig.add_subplot(1, 2, 1)
-    ax.plot(x_arr, train_history[0], '-o', label='Train loss')
-    ax.plot(x_arr, train_history[1], '--<', label='Validation loss')
-    ax.set_xlabel('Epoch', size=15)
-    ax.set_ylabel('Loss', size=15)
+    ax.plot(x_arr, train_history[0], "-o", label="Train loss")
+    ax.plot(x_arr, train_history[1], "--<", label="Validation loss")
+    ax.set_xlabel("Epoch", size=15)
+    ax.set_ylabel("Loss", size=15)
     ax.legend(fontsize=15)
     ax = fig.add_subplot(1, 2, 2)
-    ax.plot(x_arr, train_history[2], '-o', label='Train acc.')
-    ax.plot(x_arr, train_history[3], '--<', label='Validation acc.')
+    ax.plot(x_arr, train_history[2], "-o", label="Train acc.")
+    ax.plot(x_arr, train_history[3], "--<", label="Validation acc.")
     ax.legend(fontsize=15)
-    ax.set_xlabel('Epoch', size=15)
-    ax.set_ylabel('Accuracy', size=15)
+    ax.set_xlabel("Epoch", size=15)
+    ax.set_ylabel("Accuracy", size=15)
 
     if save_image:
         plt.savefig(filename)
 
     plt.show()
-

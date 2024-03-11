@@ -1,6 +1,7 @@
+from math import ceil
+
 import torch
 import torch.nn as nn
-from math import ceil
 
 base_model = [
     # expand_ratio, channels, repeats, stride, kernel_size
@@ -25,10 +26,11 @@ phi_values = {
     "b7": (6, 600, 0.5),
 }
 
-class  CNNBlock(nn.Module):
+
+class CNNBlock(nn.Module):
     def __init__(
-            self, in_channels, out_channels, kernel_size, stride, padding, groups=1
-        ):
+        self, in_channels, out_channels, kernel_size, stride, padding, groups=1
+    ):
         super(CNNBlock, self).__init__()
         self.cnn = nn.Conv2d(
             in_channels,
@@ -39,16 +41,17 @@ class  CNNBlock(nn.Module):
             groups=groups,
         )
         self.batch_norm = nn.BatchNorm2d(out_channels)
-        self.silu = nn.SiLU() # Sigmoid Linear Unit (activation) SiLu <-> Swish
+        self.silu = nn.SiLU()  # Sigmoid Linear Unit (activation) SiLu <-> Swish
 
     def forward(self, x):
         return self.silu(self.batch_norm(self.cnn(x)))
+
 
 class SqueezeExcitation(nn.Module):
     def __init__(self, in_channels, reduced_dim):
         super(SqueezeExcitation, self).__init__()
         self.squeeze_excitation = nn.Sequential(
-            nn.AdaptiveMaxPool2d(1), # C x H x W -> C x 1 x 1
+            nn.AdaptiveMaxPool2d(1),  # C x H x W -> C x 1 x 1
             nn.Conv2d(in_channels, reduced_dim, 1),
             nn.SiLU(),
             nn.Conv2d(reduced_dim, in_channels, 1),
@@ -61,10 +64,12 @@ class SqueezeExcitation(nn.Module):
         """
         return x * self.squeeze_excitation(x)
 
+
 class InvertedResidualBlock(nn.Module):
     """
     Look at MobileNetV2 for more information
     """
+
     def __init__(
         self,
         in_channels,
@@ -73,7 +78,7 @@ class InvertedResidualBlock(nn.Module):
         stride,
         padding,
         expand_ratio,
-        reduction=4,        # for squeeze excitation
+        reduction=4,  # for squeeze excitation
         survival_prob=0.8,  # for stochastic depth
     ):
         super(InvertedResidualBlock, self).__init__()
@@ -85,11 +90,20 @@ class InvertedResidualBlock(nn.Module):
 
         if self.expand:
             self.expand_conv = CNNBlock(
-                in_channels, hidden_dim, kernel_size=3, stride=1, padding=1,
+                in_channels,
+                hidden_dim,
+                kernel_size=3,
+                stride=1,
+                padding=1,
             )
         self.conv = nn.Sequential(
             CNNBlock(
-                hidden_dim, hidden_dim, kernel_size, stride, padding, groups=hidden_dim,
+                hidden_dim,
+                hidden_dim,
+                kernel_size,
+                stride,
+                padding,
+                groups=hidden_dim,
             ),
             SqueezeExcitation(hidden_dim, reduced_dim),
             nn.Conv2d(hidden_dim, out_channels, 1, bias=False),
@@ -100,7 +114,9 @@ class InvertedResidualBlock(nn.Module):
         if not self.training:
             return x
 
-        binary_tensor = torch.rand(x.shape[0], 1, 1, 1, device=x.device) < self.survival_prob
+        binary_tensor = (
+            torch.rand(x.shape[0], 1, 1, 1, device=x.device) < self.survival_prob
+        )
         return torch.div(x, self.survival_prob) * binary_tensor
 
     def forward(self, inputs):
@@ -124,10 +140,12 @@ class EfficientNet(nn.Module):
             nn.Linear(last_channels, num_classes),
         )
 
-    def calculate_factors(self, version, alpha=1.2, beta=1.1): # alpha for depth scaling and beta for width scaling
+    def calculate_factors(
+        self, version, alpha=1.2, beta=1.1
+    ):  # alpha for depth scaling and beta for width scaling
         phi, res, drop_rate = phi_values[version]
-        depth_factor = alpha ** phi  # how much times layers should increase each stage
-        width_factor = beta ** phi   # how channels increase
+        depth_factor = alpha**phi  # how much times layers should increase each stage
+        width_factor = beta**phi  # how channels increase
         return width_factor, depth_factor, drop_rate
 
     def create_features(self, width_factor, depth_factor, last_channels):
@@ -136,7 +154,9 @@ class EfficientNet(nn.Module):
         in_channels = channels
 
         for expand_ratio, channels, repeats, stride, kernel_size in base_model:
-            out_channels = 4 * ceil(int(channels * width_factor) / 4)  # make sure divisible by 4 for reduction
+            out_channels = 4 * ceil(
+                int(channels * width_factor) / 4
+            )  # make sure divisible by 4 for reduction
             layers_repeat = ceil(repeats * depth_factor)
 
             for layer in range(layers_repeat):
@@ -145,9 +165,12 @@ class EfficientNet(nn.Module):
                         in_channels,
                         out_channels,
                         expand_ratio=expand_ratio,
-                        stride = stride if layer == 0 else 1, # only downsize on first layer of each stage
+                        stride=(
+                            stride if layer == 0 else 1
+                        ),  # only downsize on first layer of each stage
                         kernel_size=kernel_size,
-                        padding=kernel_size//2, # if k=1 : pad=0, k=3 : pad=1, k=5 : pad=2
+                        padding=kernel_size
+                        // 2,  # if k=1 : pad=0, k=3 : pad=1, k=5 : pad=2
                     )
                 )
                 in_channels = out_channels
@@ -160,4 +183,6 @@ class EfficientNet(nn.Module):
 
     def forward(self, x):
         x = self.pool(self.features(x))
-        return self.classifier(x.view(x.shape[0], -1)) # flatten to send through classifier
+        return self.classifier(
+            x.view(x.shape[0], -1)
+        )  # flatten to send through classifier

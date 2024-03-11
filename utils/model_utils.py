@@ -1,5 +1,6 @@
 import torch
 
+
 def save_model(model, filename):
     """
     Save the final model's state_dict to a file.

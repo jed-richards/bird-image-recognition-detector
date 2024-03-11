@@ -1,28 +1,26 @@
+import os
+from timeit import default_timer
+
 import torch
 import torch.nn as nn
-from timeit import default_timer
-import os
-
-from utils.model_utils import save_model
-from utils.train_utils import train, plot_learning_curve
-from utils.test_utils import test_model
-from utils.data_utils import (
-    load_train_test_valid_df, get_train_test_valid_dataloaders
-)
 
 from models.efficient_net import EfficientNet
 from models.model1 import CNN
 from models.pretrained_efficient_net import build_pretrained_efficient_net_model
+from utils.data_utils import get_train_test_valid_dataloaders, load_train_test_valid_df
+from utils.model_utils import save_model
+from utils.test_utils import test_model
+from utils.train_utils import plot_learning_curve, train
 
 # model_types = ["efficient_net", "pretrained_efficient_net", "CNN"]
 
 model_config = {
-    "model_type" : "pretrained_efficient_net",  # ["efficient_net", ...]
-    "num_classes": 525,    # number of bird classes
-    "lr" : 0.001,          # learning rate
+    "model_type": "pretrained_efficient_net",  # ["efficient_net", ...]
+    "num_classes": 525,  # number of bird classes
+    "lr": 0.001,  # learning rate
 }
 
-#torch.manual_seed(1)
+# torch.manual_seed(1)
 
 if __name__ == "__main__":
     # Load train, test, and valid dataframes
@@ -69,26 +67,26 @@ if __name__ == "__main__":
     model, hist = train(model, loss_fn, optimizer, num_epochs, train_dl, valid_dl)
     t2 = default_timer()
 
-    print("-"*20)
+    print("-" * 20)
     print("")
     print(f"TIME: {t2-t1}")
     print("")
-    print("-"*20)
+    print("-" * 20)
 
     # Plot training data
     plot_learning_curve(
         hist,
         save_image=True,
-        filename="models/training_images/pretrained_efficient_net01.jpg"
+        filename="models/training_images/pretrained_efficient_net01.jpg",
     )
 
     # Make sure directory exists
-    if not os.path.exists('models/saved_models'):
-        os.mkdir('models/saved_models')
+    if not os.path.exists("models/saved_models"):
+        os.mkdir("models/saved_models")
 
     # Save model
-    #path = 'models/saved_models/efficient_net01.ph'
-    path = 'models/saved_models/pretrained_efficient_net01.ph'
+    # path = 'models/saved_models/efficient_net01.ph'
+    path = "models/saved_models/pretrained_efficient_net01.ph"
     save_model(model, path)
 
     # Test the model

@@ -1,6 +1,8 @@
 import pandas as pd
 from torch.utils.data import DataLoader
+
 from utils.dataset import ImageDataset
+
 
 def load_train_test_valid_df(csv_filename="data/bird_df.csv"):
     """
@@ -26,9 +28,9 @@ def load_train_test_valid_df(csv_filename="data/bird_df.csv"):
     train_df, test_df, valid_df = load_train_test_valid_df(csv_filename)
     """
     df = pd.read_csv(csv_filename)
-    train_df = df[df['dataset'] == 'train']
-    test_df = df[df['dataset'] == 'test']
-    valid_df = df[df['dataset'] == 'valid']
+    train_df = df[df["dataset"] == "train"]
+    test_df = df[df["dataset"] == "test"]
+    valid_df = df[df["dataset"] == "valid"]
     return train_df, test_df, valid_df
 
 
