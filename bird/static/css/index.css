@@ -6,22 +6,20 @@ h1#title {
 
 div#description-div {
     width: 75%;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     margin-left: auto;
     margin-right: auto;
     border: 3px solid #ccc;
-    padding: 10px;
+    padding: 5px;
     border-radius: 4px;
 }
 
 #predict-button {
-    margin-top: 20px;
-    margin-bottom: 20px;
     margin-left: auto;
     margin-right: auto;
     display: block;
-    padding: 10px;
+    padding: 5px;
     border-radius: 4px;
     background-color: #4CAF50;
     color: white;
@@ -32,46 +30,49 @@ div#description-div {
 
 div#form-div {
     width: 75%;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     margin-left: auto;
     margin-right: auto;
     border: 3px solid #ccc;
-    padding: 10px;
+    padding: 5px;
     border-radius: 4px;
 }
 
 div#prediction-div {
     width: 75%;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     margin-left: auto;
     margin-right: auto;
     border: 3px solid #ccc;
     background-color: #ccc;
-    padding: 10px;
+    padding: 5px;
     border-radius: 4px;
 }
 
 div#user-image-div {
     padding: 5px;
-    border-radius: 4px;
+    border: 3px solid #black;
+    border-radius: 5px;
     background-color: dimgrey;
     text-align: center;
     color: white;
     width: fit-content;
     margin-right: auto;
     margin-left: auto;
-    margin-top: 20px;
+    margin-top: 5px;
 }
 
 div#top-three-div {
-    margin: 10px;
     border: 3px solid #ccc;
     border-radius: 5px;
     background-color: #ccc;
     display: flex;
     flex-wrap: wrap;
+    margin-top: 2px;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 div.predicted-image-div {
@@ -86,14 +87,14 @@ div.predicted-image-div {
 }
 
 .predicted-image-div p {
-    font-size: 18px;
+    font-size: 16px;
     margin: auto;
 }
 
 h3 {
     text-align: center;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 p {
