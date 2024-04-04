@@ -49,7 +49,7 @@ model = load_model(MODEL_PATH)
 
 
 # Transform input into the form our model expects
-def transform_image(image_file):
+def transform_image(image_file) -> torch.Tensor:
     transform = transforms.Compose(
         [
             transforms.Resize(
@@ -81,26 +81,30 @@ def get_labels_dict() -> Dict[str, List[str]]:
 labels_dict = get_labels_dict()
 
 
-# Get a prediction
-def get_prediction(input_tensor):
+def get_top_three_predictions(input_tensor: torch.Tensor) -> List[Dict[str, any]]:
     with torch.no_grad():
         output = model(input_tensor)
-
-    # The output has unnormalized scores. To get probabilities, you can run a softmax on it.
     output = torch.nn.functional.softmax(output[0], dim=0)
-    confidence, index = torch.max(output, 0)
-    prediction_id = index.item()
-    confidence = confidence.item()
-    bird_label, bird_img_path = labels_dict[prediction_id]
-    return prediction_id, bird_label, bird_img_path, confidence
+    confidence, indices = torch.topk(
+        output, k=3
+    )  # Get top 3 indices and their confidence scores
+    top_three_predictions = []
+    for confidence_score, index in zip(confidence, indices):
+        prediction_id = index.item()
+        confidence_score = confidence_score.item()
 
-    # outputs = model(input_tensor)
-    ##print(f'outputs: {outputs}')
-    # _, y_hat = outputs.max(1)              # Extract the most likely class
-    # prediction_id = y_hat.item()           # Extract the int value from the PyTorch tensor
-    # print(f'pred_id: {prediction_id}')
-    # bird_label, bird_img_path = labels_dict[prediction_id]
-    # return prediction_id, bird_label, bird_img_path
+        confidence_score = confidence_score * 100  # convert to percentage
+
+        bird_label, bird_img_path = labels_dict[prediction_id]
+        top_three_predictions.append(
+            {
+                "predicted_id": prediction_id,
+                "bird_label": bird_label,
+                "bird_img_path": bird_img_path,
+                "confidence": confidence_score,
+            }
+        )
+    return top_three_predictions
 
 
 @app.route("/", methods=["GET"])
@@ -129,22 +133,40 @@ def predict():
     print(str(filepath))
 
     img_tensor = transform_image(filepath)
-    prediction_id, bird_label, bird_img_path, confidence = get_prediction(img_tensor)
-    print(f"predicted_id = {prediction_id}")
-    print(f"bird_label = {bird_label}")
-    print(f"bird_img_path = {bird_img_path}")
-    print(f"confidence = {confidence}")
+
+    top_three_predictions = get_top_three_predictions(img_tensor)
+
+    prediction1 = {
+        "species": top_three_predictions[0]["bird_label"],
+        "predicted_id": top_three_predictions[0]["predicted_id"],
+        "accuracy": f'{top_three_predictions[0]["confidence"]:.2f}',
+        "predicted_image": top_three_predictions[0]["bird_img_path"],
+    }
+
+    prediction2 = {
+        "species": top_three_predictions[1]["bird_label"],
+        "predicted_id": top_three_predictions[1]["predicted_id"],
+        "accuracy": f'{top_three_predictions[1]["confidence"]:.2f}',
+        "predicted_image": top_three_predictions[1]["bird_img_path"],
+    }
+
+    prediction3 = {
+        "species": top_three_predictions[2]["bird_label"],
+        "predicted_id": top_three_predictions[2]["predicted_id"],
+        "accuracy": f'{top_three_predictions[2]["confidence"]:.2f}',
+        "predicted_image": top_three_predictions[2]["bird_img_path"],
+    }
 
     prediction = {
-        "species": bird_label,
-        "predicted_id": prediction_id,
-        "accuracy": confidence,
         "user_image": str(filepath)[5:],  # remove 'bird/'
-        "predicted_image": bird_img_path,
+        "prediction1": prediction1,
+        "prediction2": prediction2,
+        "prediction3": prediction3,
     }
 
     print(jsonify({"filepath": str(filepath)}))
     print(jsonify({"filepath[5:]": str(filepath)[5:]}))
+    print(jsonify(prediction))
     # return jsonify(prediction)
     return render_template("index.html", prediction=prediction)
 

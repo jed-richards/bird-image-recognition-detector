@@ -8,9 +8,25 @@
 
     <body>
         <div id="title-div">
-            <h1 id="title">B.I.R.D.</h1>
-            <p id="subtitle">Bird Image Recognition Detector</p>
-            <p id="description">B.I.R.D. is a web application that uses machine learning to identify bird species from images.</p>
+            <h1 id="title">B.I.R.D. - Bird Image Recognition Detector</h1>
+            <div id="description-div">
+                <p id="description">
+                    B.I.R.D. is a machine learning project to identify bird species
+                    from images. The project wraps a complex machine learning backend
+                    with a user friendly web application on the front end.
+                </p>
+                <p id="instructions">
+                    To use the application, upload an image of a bird and click the
+                    "Predict Species" button. The application will return the top 3
+                    predictions of the bird species.
+                </p>
+                <p id="github-link">
+                    Check out the project on
+                    <a href="https://github.com/jed-richards/bird-image-recognition-detector">
+                        GitHub!
+                    </a>
+                </p>
+            </div>
         </div>
 
         <div id="form-div">
@@ -24,19 +40,31 @@
         {% if prediction %}
         <!-- show image and percentage -->
         <div id="prediction-div">
-            <p id="species">The predicted species is: {{ prediction.species }}</p>
-            <p id="percentage">The percent accuracy is: {{ prediction.accuracy }}</p>
-            <p id="prediction_id">The predicted ID is: {{ prediction.predicted_id }}</p>
-            <div id="image-div">
-                <div id="user-image-div">
-                    <p id="user-image-label">Your Image</p>
-                    <img src="/{{prediction.user_image}}" alt="Your Bird Image" id="user-bird-image">
+            <div id="user-image-div">
+                <h3 id="user-image-label">Your Image</h3>
+                <img src="/{{prediction.user_image}}" alt="Your Bird Image" id="user-bird-image">
+            </div>
+            <div id="top-three-div">
+                <div class="predicted-image-div">
+                    <h3 id="title">Prediction 1</h3>
+                    <p id="species">Predicted species: <strong>{{ prediction.prediction1.species }}</strong></p>
+                    <p id="percentage">Confidence: <strong>{{ prediction.prediction1.accuracy }} %</strong></p>
+                    <p id="prediction_id">Predicted ID: <strong>{{ prediction.prediction1.predicted_id }}</strong></p>
+                    <img src="{{ url_for('serve_image', predicted_image_path=prediction['prediction1']['predicted_image']) }}" alt="Predicted Image">
                 </div>
-                <div id="predicted-image-div">
-                    <p id="predicted-image-label">Predicted Image</p>
-                    <!--<img src="/{{prediction.predicted_image}}" alt="Predicted Bird Image" id="predicted-bird-image">-->
-                    <!--<img src="{{ url_for('serve_image', predicted_image_path=prediction['predicted_image']) }}" alt="Predicted Image">-->
-                    <img src="{{ url_for('serve_image', predicted_image_path=prediction['predicted_image']) }}" alt="Predicted Image">
+                <div class="predicted-image-div">
+                    <h3 id="title">Prediction 2</h3>
+                    <p id="species">Predicted species: <strong>{{ prediction.prediction2.species }}</strong></p>
+                    <p id="percentage">Confidence: <strong>{{ prediction.prediction2.accuracy }} %</strong></p>
+                    <p id="prediction_id">Predicted ID: <strong>{{ prediction.prediction2.predicted_id }}</strong></p>
+                    <img src="{{ url_for('serve_image', predicted_image_path=prediction['prediction2']['predicted_image']) }}" alt="Predicted Image">
+                </div>
+                <div class="predicted-image-div">
+                    <h3 id="title">Prediction 3</h3>
+                    <p id="species">Predicted species: <strong>{{ prediction.prediction3.species }}</strong></p>
+                    <p id="percentage">Confidence: <strong>{{ prediction.prediction3.accuracy }} %</strong></p>
+                    <p id="prediction_id">Predicted ID: <strong>{{ prediction.prediction3.predicted_id }}</strong></p>
+                    <img src="{{ url_for('serve_image', predicted_image_path=prediction['prediction3']['predicted_image']) }}" alt="Predicted Image">
                 </div>
             </div>
         </div>
